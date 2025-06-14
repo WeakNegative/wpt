@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config: ${{ fromJson(inputs.matrix_json).config }}
+        params: ${{ fromJson(inputs.matrix_json).params }}
 
     env:
       GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
@@ -24,15 +24,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🧠 Run Hyperopt
+        env:
+          PARAM: ${{ matrix.params }}        
+          LOSS: ${{ fromJson(inputs.matrix_json).loss }}
+          SPACE: ${{ fromJson(inputs.matrix_json).space }}
         run: |
           echo "Running hyperopt..."
-          echo "Strategy: ${{ matrix.config.strategy }}"
-          echo "Loss Type: ${{ matrix.config.loss }}"
-          echo "Space: ${{ matrix.config.space }}"
+          echo "Loss: $LOSS"
+          echo "Space: $SPACE"
+          echo "Param: $PARAM"
 
-          # Example Command:
-          # freqtrade hyperopt \
-          #   --strategy ${{ matrix.config.strategy }} \
-          #   --spaces ${{ matrix.config.space }} \
-          #   --hyperopt-loss ${{ matrix.config.loss }} \
-          #   --config user_data/config.json
+          # echo -e "\n$hr\nID: $id 👉 Running $hyperopt_loss\nSpaces: $spaces | Days: $days | Epochs: $epochs\n$hr"
+          # freqtrade hyperopt --timerange ${start_date}-${end_date} --epochs ${epochs} -j 4 \
+          #   --spaces ${spaces} --ignore-missing-spaces --hyperopt-loss ${hyperopt_loss} \
+          #   --enable-protections --analyze-per-epoch  --random-state ${id} \
+          #   --fee=$FEE --logfile /dev/null > /dev/null 2>&1
